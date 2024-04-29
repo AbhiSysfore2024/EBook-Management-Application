@@ -19,4 +19,5 @@ namespace Models
         public float AvgRating { get; set; }
         public Genre BookGenre { get; set; }
     }
+
 }
