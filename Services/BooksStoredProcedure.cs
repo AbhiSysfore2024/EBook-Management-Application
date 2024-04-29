@@ -114,7 +114,37 @@ namespace Services
             catch (Exception e)
             {
                 return false;
+            } 
+        }
+
+        public List<BooksModel> GetBooksByTitle(string title)
+        {
+            List<BooksModel> _booksByTitle = new List<BooksModel>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string getBookByTitleQuery = "GetBooksByTitle";
+                    SqlCommand command = new SqlCommand(getBookByTitleQuery, connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Title", title);
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        BooksModel book = MapReaderBook(reader);
+                        _booksByTitle.Add(book);
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Handle exceptions
+                }
             }
+
+            return _booksByTitle;
         }
     }
 }
