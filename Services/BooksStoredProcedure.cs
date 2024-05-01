@@ -7,13 +7,21 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace Services
 {
     public class BooksStoredProcedure : IDatabaseManager
     {
-      //  private readonly string _connectionString = "Data Source=192.168.10.28\\SQLEX2017;Initial Catalog=Abhilash;User Id=sysfore.ea;Password=Sys@2024#;Encrypt=false";
-        private readonly string _connectionString = "Data Source=BLRSFLT274\\SQLEXPRESS;Initial Catalog=ADOBookManagement;Integrated Security=True;Trusted_Connection=true;encrypt=false;";
+        //private readonly IConfiguration configuration;
+
+        //public BooksStoredProcedure(IConfiguration configuration)
+        //{
+        //    _connectionString = configuration.GetConnectionString("DefaultConnection");
+        //}
+
+        private readonly string _connectionString = "Data Source=192.168.10.28\\SQLEX2017;Initial Catalog=Abhilash;User Id=sysfore.ea;Password=Sys@2024#;Encrypt=false";
+        //private readonly string _connectionString = "Data Source=BLRSFLT274\\SQLEXPRESS;Initial Catalog=ADOBookManagement;Integrated Security=True;Trusted_Connection=true;encrypt=false;";
 
         public List<BooksModel> GetAllBooks()
         {
@@ -25,7 +33,7 @@ namespace Services
                 connection.Open();
                 string selectQuery = "GetBookDetails";
                 SqlCommand command = new SqlCommand(selectQuery, connection);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.CommandType = CommandType.StoredProcedure;
                 SqlDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
@@ -39,7 +47,6 @@ namespace Services
             {
                 return [];
             }
-
         }
 
         public BooksModel MapReaderBook(SqlDataReader reader)
@@ -55,7 +62,7 @@ namespace Services
             book.Publisher = reader.GetString(7);
             book.PageCount = reader.GetInt32(8);
             book.AvgRating = (float)reader.GetDouble(9);
-            book.BookGenre = (Genre)reader.GetInt32(10);
+            book.BookGenre = reader.GetInt32(10);
             book.IsAvailable = reader.GetBoolean(11);
 
             return book;
@@ -72,7 +79,7 @@ namespace Services
 
                 string insertQuery = "InsertBook";
                 SqlCommand command = new SqlCommand(insertQuery, connection);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add("@BookID", SqlDbType.UniqueIdentifier).Value = book.BookID;
                 command.Parameters.Add("@Title", SqlDbType.VarChar).Value = book.Title;
                 command.Parameters.Add("@Descriptions", SqlDbType.VarChar).Value = book.Description;
@@ -83,19 +90,53 @@ namespace Services
                 command.Parameters.Add("@Publisher", SqlDbType.VarChar).Value = book.Publisher;
                 command.Parameters.Add("@PagesCount", SqlDbType.Int).Value = book.PageCount;
                 command.Parameters.Add("@AvgRating", SqlDbType.Float).Value = book.AvgRating;
-                command.Parameters.Add("@BookGenre", SqlDbType.Int).Value = (int)book.BookGenre;
+                command.Parameters.Add("@BookGenre", SqlDbType.Int).Value = book.BookGenre;
                 command.Parameters.Add("@IsAvailable", SqlDbType.Bit).Value = book.IsAvailable;
                 command.Parameters.Add("@CreatedAt", SqlDbType.DateTime).Value = book.getCreatedon();
                 command.Parameters.Add("@UpdatedAt", SqlDbType.DateTime).Value = book.UpdatedAt;
 
                 int rowsAffected = command.ExecuteNonQuery();
-                return $"Employee added successfully, number of rowsaffected is {rowsAffected}";
+                return $"Book added successfully, number of rowsaffected is {rowsAffected}";
             }
             catch (Exception e)
             {
-                return "Cannot add employee";
+                return "Cannot add book";
             }
         }
+
+        public bool UpdateBook(DTOBooks book)
+        {
+            using SqlConnection connection = new SqlConnection(_connectionString);
+            try
+            {
+                connection.Open();
+
+                string updateQuery = "UpdateBook";
+                SqlCommand command = new SqlCommand(updateQuery, connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add("@BookID", SqlDbType.UniqueIdentifier).Value = book.BookID;
+                command.Parameters.Add("@Title", SqlDbType.VarChar).Value = book.Title;
+                command.Parameters.Add("@Descriptions", SqlDbType.VarChar).Value = book.Description;
+                command.Parameters.Add("@ISBN", SqlDbType.UniqueIdentifier).Value = book.ISBN;
+                command.Parameters.Add("@PublicationDate", SqlDbType.DateTime).Value = book.Publication_Date;
+                command.Parameters.Add("@Price", SqlDbType.Float).Value = book.Price;
+                command.Parameters.Add("@BookLanguage", SqlDbType.VarChar).Value = book.Language;
+                command.Parameters.Add("@Publisher", SqlDbType.VarChar).Value = book.Publisher;
+                command.Parameters.Add("@PagesCount", SqlDbType.Int).Value = book.PageCount;
+                command.Parameters.Add("@AvgRating", SqlDbType.Float).Value = book.AvgRating;
+                command.Parameters.Add("@BookGenre", SqlDbType.Int).Value = book.BookGenre;
+                command.Parameters.Add("@IsAvailable", SqlDbType.Bit).Value = book.IsAvailable;
+                command.Parameters.Add("@UpdatedAt", SqlDbType.DateTime).Value = DateTime.Now;
+
+                command.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
 
         public bool DeleteBook(Guid id)
         {
@@ -106,7 +147,7 @@ namespace Services
                 BooksModel book = new BooksModel();
                 string deleteQuery = "DeleteBook";
                 SqlCommand command = new SqlCommand(deleteQuery, connection);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@BookID", id);
                 command.ExecuteNonQuery();
                 return true;
@@ -140,11 +181,40 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-                    // Handle exceptions
+
                 }
             }
 
             return _booksByTitle;
+        }
+
+        public List<BooksModel> GetBooksByGenre(int genre_id)
+        {
+            List<BooksModel> _booksByGenre = new List<BooksModel>();
+
+            using SqlConnection connection = new SqlConnection(_connectionString);
+            {
+                try
+                {
+                    connection.Open();
+                    string getBookByGenreQuery = "GetBooksByGenre";
+                    SqlCommand command = new SqlCommand(getBookByGenreQuery, connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@BookGenre", genre_id);
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        BooksModel book = MapReaderBook(reader);
+                        _booksByGenre.Add(book);
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            return _booksByGenre;
         }
     }
 }
