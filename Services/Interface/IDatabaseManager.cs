@@ -9,10 +9,12 @@ namespace Services.Interface
 {
     public interface IDatabaseManager
     {
-        string AddBook (DTOBooks books);
-        //bool UpdateBook (BooksModel books);
         List<BooksModel> GetAllBooks();
+        string AddBook (DTOBooks books);
+        bool UpdateBook (DTOBooks books);
+    
         bool DeleteBook(Guid id);
         List<BooksModel> GetBooksByTitle(string title);
+        List<BooksModel> GetBooksByGenre(int genre_id);
     }
 }
