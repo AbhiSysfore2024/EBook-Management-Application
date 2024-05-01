@@ -1,33 +1,26 @@
 ﻿using Microsoft.Data.SqlClient;
 using Models;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using AppSettings;
+using Microsoft.Extensions.Options;
 
 namespace Services
 {
     public class BooksStoredProcedure : IDatabaseManager
     {
-        //private readonly IConfiguration configuration;
+        private readonly ConnectionStrings _connection;
 
-        //public BooksStoredProcedure(IConfiguration configuration)
-        //{
-        //    _connectionString = configuration.GetConnectionString("DefaultConnection");
-        //}
-
-        private readonly string _connectionString = "Data Source=192.168.10.28\\SQLEX2017;Initial Catalog=Abhilash;User Id=sysfore.ea;Password=Sys@2024#;Encrypt=false";
-        //private readonly string _connectionString = "Data Source=BLRSFLT274\\SQLEXPRESS;Initial Catalog=ADOBookManagement;Integrated Security=True;Trusted_Connection=true;encrypt=false;";
+        public BooksStoredProcedure(IOptions<ConnectionStrings> connection)
+        {
+            _connection = connection.Value;
+        }
 
         public List<BooksModel> GetAllBooks()
         {
             List<BooksModel> _bookDatabase = new List<BooksModel>();
 
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
             try
             {
                 connection.Open();
@@ -70,7 +63,7 @@ namespace Services
 
         public string AddBook (DTOBooks books)
         {
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
 
             try
             {
@@ -104,9 +97,9 @@ namespace Services
             }
         }
 
-        public bool UpdateBook(DTOBooks book)
+        public bool UpdateBook(BooksModel book)
         {
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
             try
             {
                 connection.Open();
@@ -140,7 +133,7 @@ namespace Services
 
         public bool DeleteBook(Guid id)
         {
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
             try
             {
                 connection.Open();
@@ -162,7 +155,7 @@ namespace Services
         {
             List<BooksModel> _booksByTitle = new List<BooksModel>();
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio))
             {
                 try
                 {
@@ -192,7 +185,7 @@ namespace Services
         {
             List<BooksModel> _booksByGenre = new List<BooksModel>();
 
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
             {
                 try
                 {

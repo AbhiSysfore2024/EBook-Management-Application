@@ -1,25 +1,26 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using AppSettings;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using Models;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services
 {
     public class AuthorStoredProcedure : IAuthorDatabaseManager
     {
-        private readonly string _connectionString = "Data Source=192.168.10.28\\SQLEX2017;Initial Catalog=Abhilash;User Id=sysfore.ea;Password=Sys@2024#;Encrypt=false";
-        //private readonly string _connectionString = "Data Source=BLRSFLT274\\SQLEXPRESS;Initial Catalog=ADOBookManagement;Integrated Security=True;Trusted_Connection=true;encrypt=false;";
+        private readonly ConnectionStrings _connection;
+
+        public AuthorStoredProcedure(IOptions<ConnectionStrings> connection)
+        {
+            _connection = connection.Value;
+        }
 
         public List<AuthorModel> GetAllAuthors()
         {
             List<AuthorModel> _authorDatabase = new List<AuthorModel>();
 
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
             try
             {
                 connection.Open();
@@ -62,7 +63,7 @@ namespace Services
 
         public string AddAuthor(DTOAuthor authors)
         {
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
 
             try
             {
@@ -93,7 +94,7 @@ namespace Services
 
         public bool DeleteAuthor(Guid id)
         {
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
             try
             {
                 connection.Open();

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AppSettings\AppSettings.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
