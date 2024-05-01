@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public enum Genre
+    public class Genre
     {
-        Action = 1,
-        Mystery,
-        Comedy
+        public int GenreId { get; set; }
+        public string GenreName { get; set; }
     }
 }
