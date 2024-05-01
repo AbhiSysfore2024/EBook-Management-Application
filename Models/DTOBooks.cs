@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,6 @@ namespace Models
         public string Publisher { get; set; }
         public int PageCount { get; set; }
         public float AvgRating { get; set; }
-        public Genre BookGenre { get; set; }
+        public int BookGenre { get; set; }
     }
-
 }

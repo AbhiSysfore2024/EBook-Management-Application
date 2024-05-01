@@ -15,8 +15,14 @@ namespace Models
         public int PageCount { get; set; }
         public float AvgRating { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public Genre BookGenre { get; set; }
+        public DateTime? UpdatedAt { get; set; } = null;
+        public int BookGenre { get; set; }
+        public bool IsAvailable { get; set; }
+
+        public DateTime getCreatedon()
+        {
+            return this.CreatedAt;
+        }
 
         public BooksModel()
         {
@@ -25,6 +31,7 @@ namespace Models
 
         public BooksModel(DTOBooks books)
         {
+            IsAvailable = true;
             BookID = Guid.NewGuid();
             CreatedAt = DateTime.Now;
             this.Title = books.Title;
@@ -36,7 +43,8 @@ namespace Models
             this.Publisher = books.Publisher;
             this.PageCount = books.PageCount;
             this.AvgRating = books.AvgRating;
-            this.BookGenre = (Genre)books.BookGenre;
+            this.BookGenre = books.BookGenre;
+            UpdatedAt = DateTime.Now;
         }
     }
 }

@@ -16,6 +16,16 @@ namespace Models
         private DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        public DateTime getCreatedon()
+        {
+            return this.CreatedAt;
+        }
+
+        public DateTime getUpdatedon()
+        {
+            return this.UpdatedAt;
+        }
+
         public AuthorModel()
         {
 
@@ -25,14 +35,12 @@ namespace Models
         {
             AuthorID = Guid.NewGuid();
             CreatedAt = DateTime.Now;
+            UpdatedAt = DateTime.Now;
             this.Name = (Name)author.Name;
             this.Biography = author.Biography;
             this.BirthDate = author.BirthDate;
             this.Country = author.Country;
-
-
         }
-
     }
 
     public class Name
