@@ -56,7 +56,7 @@ namespace EBook_Management_Application.Controllers
 
         [HttpPut]
         [Route("/UpdateAuthor/{id}")]
-        public ActionResult UpdateAuthor([FromBody] AuthorModel author)
+        public ActionResult UpdateAuthor([FromBody] UpdateAuthorModel author)
         {
             return Ok(_authordatabasemanager.UpdateAuthor(author));
         }
@@ -114,37 +114,34 @@ namespace EBook_Management_Application.Controllers
         [HttpGet("GetBooksByAuthorName")]
         public ActionResult GetBooksByAuthorName(string authorName)
         {
-            try
+            var books = _databasemanager.GetBooksByAuthorName(authorName);
+            if (books.Count == 0)
             {
-                var books = _databasemanager.GetBooksByAuthorName(authorName);
-                if (books.Count == 0)
-                {
-                    return NotFound("No books found for the author.");
-                }
-                return Ok(books);
+                return NotFound("No books found for the author.");
             }
-            catch (Exception e)
-            {
-                return StatusCode(500, $"Internal server error: {e.Message}");
-            }
+            return Ok(books);
         }
 
         [HttpGet("GroupBooksOnGenreName")]
         public ActionResult GroupBooksOnGenreName()
         {
-            try
+            var booksOnGenre = _databasemanager.GroupBooksOnGenreName();
+            if (booksOnGenre.Count == 0)
             {
-                var booksOnGenre = _databasemanager.GroupBooksOnGenreName();
-                if (booksOnGenre.Count == 0)
-                {
-                    return NotFound("No books found for the author.");
-                }
-                return Ok(booksOnGenre);
+                return NotFound("No books found for the author.");
             }
-            catch (Exception e)
+            return Ok(booksOnGenre);
+        }
+
+        [HttpGet("/GetAuthorsOfABook")]
+        public ActionResult GetAuthorsOfABook(string title) 
+        {
+            var authorsOfBook = _databasemanager.GetAuthorsOfABook(title);
+            if (authorsOfBook.Count == 0)
             {
-                return StatusCode(500, $"Internal server error: {e.Message}");
+                return NotFound("Book not found");
             }
+            return Ok(authorsOfBook);
         }
     }
 }

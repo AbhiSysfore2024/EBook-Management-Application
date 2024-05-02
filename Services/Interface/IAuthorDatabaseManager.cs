@@ -11,7 +11,7 @@ namespace Services.Interface
     {
         List<AuthorModel> GetAllAuthors();
         string AddAuthor(DTOAuthor author);
-        string UpdateAuthor(AuthorModel author);
+        string UpdateAuthor(UpdateAuthorModel author);
         bool DeleteAuthor(Guid id);
     }
 }

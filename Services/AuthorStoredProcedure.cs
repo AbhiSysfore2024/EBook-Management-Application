@@ -83,8 +83,8 @@ namespace Services
                 command.Parameters.Add("@UpdatedAt", SqlDbType.DateTime).Value = author.getUpdatedon();
 
 
-                int rowsAffected = command.ExecuteNonQuery();
-                return $"Author added successfully, number of rowsaffected is {rowsAffected}";
+                //int rowsAffected = command.ExecuteNonQuery();
+                return "Author added successfully";
             }
             catch (Exception e)
             {
@@ -92,7 +92,7 @@ namespace Services
             }
         }
 
-        public string UpdateAuthor(AuthorModel author)
+        public string UpdateAuthor(UpdateAuthorModel author)
         {
             using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
             try
