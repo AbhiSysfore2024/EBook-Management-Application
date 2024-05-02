@@ -54,6 +54,13 @@ namespace EBook_Management_Application.Controllers
             return Ok(_databasemanager.UpdateBook(book));
         }
 
+        [HttpPut]
+        [Route("/UpdateAuthor/{id}")]
+        public ActionResult UpdateAuthor([FromBody] AuthorModel author)
+        {
+            return Ok(_authordatabasemanager.UpdateAuthor(author));
+        }
+
         [HttpDelete]
         [Route("/DeleteBook/{id}")]
         public ActionResult DeleteBook(Guid id)
@@ -102,6 +109,42 @@ namespace EBook_Management_Application.Controllers
                 return NotFound("No book with given genre found");
             }
             return Ok(books);   
+        }
+
+        [HttpGet("GetBooksByAuthorName")]
+        public ActionResult GetBooksByAuthorName(string authorName)
+        {
+            try
+            {
+                var books = _databasemanager.GetBooksByAuthorName(authorName);
+                if (books.Count == 0)
+                {
+                    return NotFound("No books found for the author.");
+                }
+                return Ok(books);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"Internal server error: {e.Message}");
+            }
+        }
+
+        [HttpGet("GroupBooksOnGenreName")]
+        public ActionResult GroupBooksOnGenreName()
+        {
+            try
+            {
+                var booksOnGenre = _databasemanager.GroupBooksOnGenreName();
+                if (booksOnGenre.Count == 0)
+                {
+                    return NotFound("No books found for the author.");
+                }
+                return Ok(booksOnGenre);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"Internal server error: {e.Message}");
+            }
         }
     }
 }

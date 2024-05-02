@@ -46,17 +46,18 @@ namespace Services
         {
             var book = new BooksModel();
             book.BookID = reader.GetGuid(0);
-            book.Title = reader.GetString(1);
-            book.Description = reader.GetString(2);
-            book.ISBN = reader.GetGuid(3);
-            book.Publication_Date = reader.GetDateTime(4);
-            book.Price = (float)reader.GetDouble(5);
-            book.Language = reader.GetString(6);
-            book.Publisher = reader.GetString(7);
-            book.PageCount = reader.GetInt32(8);
-            book.AvgRating = (float)reader.GetDouble(9);
-            book.BookGenre = reader.GetInt32(10);
-            book.IsAvailable = reader.GetBoolean(11);
+            book.AuthorID = reader.GetGuid(1);
+            book.Title = reader.GetString(2);
+            book.Description = reader.GetString(3);
+            book.ISBN = reader.GetGuid(4);
+            book.Publication_Date = reader.GetDateTime(5);
+            book.Price = (float)reader.GetDouble(6);
+            book.Language = reader.GetString(7);
+            book.Publisher = reader.GetString(8);
+            book.PageCount = reader.GetInt32(9);
+            book.AvgRating = (float)reader.GetDouble(10);
+            book.BookGenre = reader.GetInt32(11);
+            book.IsAvailable = reader.GetBoolean(12);
 
             return book;
         }
@@ -74,6 +75,7 @@ namespace Services
                 SqlCommand command = new SqlCommand(insertQuery, connection);
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add("@BookID", SqlDbType.UniqueIdentifier).Value = book.BookID;
+                command.Parameters.Add("AuthorID", SqlDbType.UniqueIdentifier).Value = book.AuthorID;
                 command.Parameters.Add("@Title", SqlDbType.VarChar).Value = book.Title;
                 command.Parameters.Add("@Descriptions", SqlDbType.VarChar).Value = book.Description;
                 command.Parameters.Add("@ISBN", SqlDbType.UniqueIdentifier).Value = book.ISBN;
@@ -93,7 +95,7 @@ namespace Services
             }
             catch (Exception e)
             {
-                return "Cannot add book";
+                return e.ToString();
             }
         }
 
@@ -108,6 +110,7 @@ namespace Services
                 SqlCommand command = new SqlCommand(updateQuery, connection);
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add("@BookID", SqlDbType.UniqueIdentifier).Value = book.BookID;
+                command.Parameters.Add("@AuthorID", SqlDbType.UniqueIdentifier).Value = book.AuthorID;
                 command.Parameters.Add("@Title", SqlDbType.VarChar).Value = book.Title;
                 command.Parameters.Add("@Descriptions", SqlDbType.VarChar).Value = book.Description;
                 command.Parameters.Add("@ISBN", SqlDbType.UniqueIdentifier).Value = book.ISBN;
@@ -208,6 +211,99 @@ namespace Services
                 }
             }
             return _booksByGenre;
+        }
+
+
+        public Dictionary<string, List<object>> GetBooksByAuthorName(string authorName)
+        {
+            Dictionary<string, List<object>> booksByAuthor = new Dictionary<string, List<object>>();
+
+            using (SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio))
+            {
+                try
+                {
+                    connection.Open();
+                    string getBooksByAuthorQuery = "GetBooksByAuthorName";
+                    SqlCommand command = new SqlCommand(getBooksByAuthorQuery, connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@FirstName", authorName);
+
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Guid authorID = reader.GetGuid(0);
+                        Guid bookID = reader.GetGuid(1);
+                        string firstName = reader.GetString(2);
+                        string title = reader.GetString(3);
+
+                        var book = new
+                        {
+                            AuthorID = authorID,
+                            BookID = bookID,
+                            Title = title
+                        };
+
+                        if (!booksByAuthor.ContainsKey(firstName))
+                        {
+                            booksByAuthor[firstName] = new List<object>();
+                        }
+
+                        booksByAuthor[firstName].Add(book);
+                    }
+                }
+                catch (Exception e)
+                {
+                   
+                }
+            }
+            return booksByAuthor;
+        }
+
+        public Dictionary<string, List<object>> GroupBooksOnGenreName()
+        {
+            Dictionary<string, List<object>> groupBooksOnGenreName = new Dictionary<string, List<object>>();
+            using (SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio))
+            {
+                try
+                {
+                    connection.Open();
+                    string groupBooksOnGenreQuery = "GroupBooksOnGenreName";
+                    SqlCommand command = new SqlCommand(groupBooksOnGenreQuery, connection);
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Guid bookID = reader.GetGuid(0);
+                        int bookGenre = reader.GetInt32(1);
+                        string title = reader.GetString(2);
+                        string bookLanguage = reader.GetString(3);
+                        string genreName = reader.GetString(4);
+
+                        var bookByGenre = new
+                        {
+                            BookID = bookID,
+                            BookGenre = bookGenre,
+                            Title = title,
+                            BookLanguage = bookLanguage
+                        };
+
+                        if (!groupBooksOnGenreName.ContainsKey(genreName))
+                        {
+                            groupBooksOnGenreName[genreName] = new List<object>();
+                        }
+
+                        groupBooksOnGenreName[genreName].Add(bookByGenre);
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            return groupBooksOnGenreName;
         }
     }
 }
