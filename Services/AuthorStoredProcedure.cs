@@ -92,6 +92,33 @@ namespace Services
             }
         }
 
+        public string UpdateAuthor(AuthorModel author)
+        {
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
+            try
+            {
+                connection.Open();
+
+                string updateQuery = "UpdateAuthor";
+                SqlCommand command = new SqlCommand(updateQuery, connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add("@AuthorID", SqlDbType.UniqueIdentifier).Value = author.AuthorID;
+                command.Parameters.Add("@FirstName", SqlDbType.VarChar).Value = author.Name.FirstName;
+                command.Parameters.Add("@LastName", SqlDbType.VarChar).Value = author.Name.LastName;
+                command.Parameters.Add("@Biography", SqlDbType.VarChar).Value = author.Biography;
+                command.Parameters.Add("@BirthDate", SqlDbType.DateTime).Value = author.BirthDate;
+                command.Parameters.Add("@Country", SqlDbType.VarChar).Value = author.Country;
+                command.Parameters.Add("@UpdatedAt", SqlDbType.DateTime).Value = DateTime.Now;
+
+                command.ExecuteNonQuery();
+                return "Updated successfully";
+            }
+            catch (Exception e)
+            {
+                return "Author not found";
+            }
+        }
+
         public bool DeleteAuthor(Guid id)
         {
             using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
