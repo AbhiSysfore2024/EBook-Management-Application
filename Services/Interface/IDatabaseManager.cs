@@ -14,11 +14,13 @@ namespace Services.Interface
         bool UpdateBook (BooksModel books);
     
         bool DeleteBook(Guid id);
+        
         List<BooksModel> GetBooksByTitle(string title);
         List<BooksModel> GetBooksByGenre(int genre_id);
         //List<(Guid AuthorID, Guid BookID, string FirstName, string Title)> GetBooksByAuthorName(string authorName);
         //List<object> GetBooksByAuthorName(string authorName);
         Dictionary<string, List<object>> GetBooksByAuthorName(string authorName);
         Dictionary<string, List <object>> GroupBooksOnGenreName();
+        Dictionary<string, List<object>> GetAuthorsOfABook(string title);
     }
 }
