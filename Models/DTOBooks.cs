@@ -19,5 +19,6 @@ namespace Models
         public int PageCount { get; set; }
         public float AvgRating { get; set; }
         public int BookGenre { get; set; }
+        public List<Guid> AuthorID { get; set; }
     }
 }
