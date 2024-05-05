@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,9 +34,9 @@ namespace Models
 
         public AuthorModel ( DTOAuthor author )
         {
-            AuthorID = Guid.NewGuid();
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
+            AuthorID = Guid.NewGuid();
             this.Name = (Name)author.Name;
             this.Biography = author.Biography;
             this.BirthDate = author.BirthDate;

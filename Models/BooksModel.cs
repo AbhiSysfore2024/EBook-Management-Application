@@ -18,7 +18,6 @@ namespace Models
         public DateTime? UpdatedAt { get; set; } = null;
         public int BookGenre { get; set; }
         public bool IsAvailable { get; set; }
-        public List<Guid> AuthorID {  get; set; }
 
         public DateTime getCreatedon()
         {
@@ -34,7 +33,6 @@ namespace Models
         {
             IsAvailable = true;
             BookID = Guid.NewGuid();
-            this.AuthorID = books.AuthorID;
             CreatedAt = DateTime.Now;
             this.Title = books.Title;
             this.Description = books.Description;
