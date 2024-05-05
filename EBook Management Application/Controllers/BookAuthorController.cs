@@ -49,7 +49,7 @@ namespace EBook_Management_Application.Controllers
 
         [HttpPut]
         [Route("/UpdateBook/{id}")]
-        public ActionResult UpdateBook([FromBody] BooksModel book)
+        public ActionResult UpdateBook([FromBody] UpdateBookModel book)
         {
             return Ok(_databasemanager.UpdateBook(book));
         }

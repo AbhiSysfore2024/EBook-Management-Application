@@ -4,6 +4,7 @@ using Services.Interface;
 using System.Data;
 using AppSettings;
 using Microsoft.Extensions.Options;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Services
 {
@@ -99,6 +100,7 @@ namespace Services
                     authorIDsParam.SqlDbType = SqlDbType.Structured;
                     authorIDsParam.TypeName = "AuthorIDList";
 
+                    command.ExecuteNonQuery();
                     return "Book added successfully";
                 }
                 catch (Exception e)
@@ -109,36 +111,49 @@ namespace Services
         }
 
 
-        public bool UpdateBook(BooksModel book)
+        public string UpdateBook(UpdateBookModel book)
         {
-            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
-            try
+            using (SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio))
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                string updateQuery = "UpdateBook";
-                SqlCommand command = new SqlCommand(updateQuery, connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add("@BookID", SqlDbType.UniqueIdentifier).Value = book.BookID;
-                command.Parameters.Add("@Title", SqlDbType.VarChar).Value = book.Title;
-                command.Parameters.Add("@Descriptions", SqlDbType.VarChar).Value = book.Description;
-                command.Parameters.Add("@ISBN", SqlDbType.UniqueIdentifier).Value = book.ISBN;
-                command.Parameters.Add("@PublicationDate", SqlDbType.DateTime).Value = book.Publication_Date;
-                command.Parameters.Add("@Price", SqlDbType.Float).Value = book.Price;
-                command.Parameters.Add("@BookLanguage", SqlDbType.VarChar).Value = book.Language;
-                command.Parameters.Add("@Publisher", SqlDbType.VarChar).Value = book.Publisher;
-                command.Parameters.Add("@PagesCount", SqlDbType.Int).Value = book.PageCount;
-                command.Parameters.Add("@AvgRating", SqlDbType.Float).Value = book.AvgRating;
-                command.Parameters.Add("@BookGenre", SqlDbType.Int).Value = book.BookGenre;
-                command.Parameters.Add("@IsAvailable", SqlDbType.Bit).Value = book.IsAvailable;
-                command.Parameters.Add("@UpdatedAt", SqlDbType.DateTime).Value = DateTime.Now;
+                    DataTable authorIDTable = new DataTable();
+                    authorIDTable.Columns.Add("AuthorID", typeof(Guid));
+                    foreach (var authorID in book.AuthorID)
+                    {
+                        authorIDTable.Rows.Add(authorID);
+                    }
 
-                command.ExecuteNonQuery();
-                return true;
-            }
-            catch (Exception e)
-            {
-                return false;
+                    SqlCommand command = new SqlCommand("UpdateBook", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add("@BookID", SqlDbType.UniqueIdentifier).Value = book.BookID;
+                    command.Parameters.Add("@Title", SqlDbType.VarChar).Value = book.Title;
+                    command.Parameters.Add("@Descriptions", SqlDbType.VarChar).Value = book.Description;
+                    command.Parameters.Add("@ISBN", SqlDbType.UniqueIdentifier).Value = book.ISBN;
+                    command.Parameters.Add("@PublicationDate", SqlDbType.DateTime).Value = book.Publication_Date;
+                    command.Parameters.Add("@Price", SqlDbType.Float).Value = book.Price;
+                    command.Parameters.Add("@BookLanguage", SqlDbType.VarChar).Value = book.Language;
+                    command.Parameters.Add("@Publisher", SqlDbType.VarChar).Value = book.Publisher;
+                    command.Parameters.Add("@PagesCount", SqlDbType.Int).Value = book.PageCount;
+                    command.Parameters.Add("@AvgRating", SqlDbType.Float).Value = book.AvgRating;
+                    command.Parameters.Add("@BookGenre", SqlDbType.Int).Value = book.BookGenre;
+                    command.Parameters.Add("@IsAvailable", SqlDbType.Bit).Value = book.IsAvailable;
+                    command.Parameters.Add("@UpdatedAt", SqlDbType.DateTime).Value = DateTime.Now;
+
+                    SqlParameter authorIDsParam = command.Parameters.AddWithValue("@AuthorIDs", authorIDTable);
+                    authorIDsParam.SqlDbType = SqlDbType.Structured;
+                    authorIDsParam.TypeName = "AuthorIDList";
+
+                    command.ExecuteNonQuery();
+                    return "Book updated successfully";
+                }
+                catch (Exception e)
+                {
+                    return e.ToString();
+                }
             }
         }
 
@@ -242,24 +257,23 @@ namespace Services
 
                     while (reader.Read())
                     {
-                        Guid authorID = reader.GetGuid(0);
-                        Guid bookID = reader.GetGuid(1);
-                        string firstName = reader.GetString(2);
-                        string title = reader.GetString(3);
+                        Guid bookID = reader.GetGuid(0);
+                        string title = reader.GetString(1);
+                        string description = reader.GetString(2);
 
                         var book = new
                         {
-                            AuthorID = authorID,
                             BookID = bookID,
-                            Title = title
+                            Title = title,
+                            Descriptions = description
                         };
 
-                        if (!booksByAuthor.ContainsKey(firstName))
+                        if (!booksByAuthor.ContainsKey(authorName))
                         {
-                            booksByAuthor[firstName] = new List<object>();
+                            booksByAuthor[authorName] = new List<object>();
                         }
 
-                        booksByAuthor[firstName].Add(book);
+                        booksByAuthor[authorName].Add(book);
                     }
                 }
                 catch (Exception e)
