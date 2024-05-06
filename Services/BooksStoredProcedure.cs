@@ -39,6 +39,7 @@ namespace Services
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return [];
             }
         }
@@ -107,7 +108,7 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-                    return e.ToString();
+                    return e.Message;
                 }
             }
         }
@@ -154,7 +155,7 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-                    return e.ToString();
+                    return e.Message;
                 }
             }
         }
@@ -176,6 +177,7 @@ namespace Services
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return false;
             }
         }
@@ -204,7 +206,7 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine(e.Message);
                 }
             }
 
@@ -234,7 +236,7 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine(e.Message);
                 }
             }
             return _booksByGenre;
@@ -280,7 +282,7 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine(e.Message);
                 }
             }
             return booksByAuthor;
@@ -326,7 +328,7 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine(e.Message);
                 }
             }
             return groupBooksOnGenreName;
@@ -368,7 +370,7 @@ namespace Services
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine(e.Message);
                 }
             }
             return getAuthorsOfABook;

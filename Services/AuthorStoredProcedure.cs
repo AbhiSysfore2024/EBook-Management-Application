@@ -38,6 +38,7 @@ namespace Services
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return [];
             }
         }
@@ -90,6 +91,7 @@ namespace Services
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return "Cannot add author";
             }
         }
@@ -117,6 +119,7 @@ namespace Services
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return "Author not found";
             }
         }
@@ -137,6 +140,7 @@ namespace Services
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return false;
             }
         }
