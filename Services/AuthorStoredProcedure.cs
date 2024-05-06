@@ -58,6 +58,8 @@ namespace Services
             author.Biography = reader.GetString(3);
             author.BirthDate = reader.GetDateTime(4);
             author.Country = reader.GetString(5);
+            author.CreatedAt = reader.GetDateTime(6);
+            author.UpdatedAt = reader.GetDateTime(7);
             return author;
         }
 

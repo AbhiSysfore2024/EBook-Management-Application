@@ -58,6 +58,8 @@ namespace Services
             book.AvgRating = (float)reader.GetDouble(9);
             book.BookGenre = reader.GetInt32(10);
             book.IsAvailable = reader.GetBoolean(11);
+            book.CreatedAt = reader.GetDateTime(12);
+            book.UpdatedAt = reader.GetDateTime(13);
 
             return book;
         }
