@@ -1,7 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using Models;
 using Services;
 using Services.Interface;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace EBook_Management_Application.Controllers
 {
@@ -9,7 +14,6 @@ namespace EBook_Management_Application.Controllers
     [Route("[controller]")]
     public class BookAuthorController : ControllerBase
     {
-       // private readonly IConfiguration _configuration;
         private readonly IDatabaseManager _databasemanager;
         private readonly IAuthorDatabaseManager _authordatabasemanager;
 
@@ -17,14 +21,52 @@ namespace EBook_Management_Application.Controllers
         {
             _databasemanager = databaseManager;
             _authordatabasemanager = authorDatabaseManager;
+            //_configuration = configuration;
         }
 
+
+        [HttpPost]
+        public IActionResult Login(LoginRequest loginDTO)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(loginDTO.UserName) ||
+                string.IsNullOrEmpty(loginDTO.PassWord))
+                    return BadRequest("Username and/or Password not specified");
+                if (loginDTO.UserName.Equals("string") &&
+                loginDTO.PassWord.Equals("string"))
+                {
+                    var secretKey = new SymmetricSecurityKey
+                    (Encoding.UTF8.GetBytes("YourSecretKeyForAuthenticationOfApplication"));
+                    var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+                    var jwtSecurityToken = new JwtSecurityToken(
+                        issuer: "abhilash",
+                        audience: "abhilash",
+                        claims: new List<Claim>(),
+                        expires: DateTime.Now.AddMinutes(10),
+                        signingCredentials: signinCredentials
+                    );
+                    return Ok(new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken));
+                }
+            }
+            catch
+            {
+                return BadRequest
+                ("An error occurred in generating the token");
+            }
+            return Unauthorized();
+        }
+
+
+        [Authorize]
         [HttpGet]
         [Route("GetAllBooks")]
         public ActionResult GetAllBoooks(){
             return Ok(_databasemanager.GetAllBooks());
         }
 
+        [Authorize]
         [HttpGet]
         [Route("GetAllAuthors")]
         public ActionResult GetAllAuthors()
@@ -32,6 +74,7 @@ namespace EBook_Management_Application.Controllers
             return Ok(_authordatabasemanager.GetAllAuthors());
         }
 
+        [Authorize]
         [HttpPost]
         [Route("/AddBook")]
         public ActionResult AddBook([FromBody] DTOBooks book) {
@@ -39,14 +82,16 @@ namespace EBook_Management_Application.Controllers
             return Ok(books);
         }
 
+        [Authorize]
         [HttpPost]
         [Route("/AddAuthor")]
         public ActionResult AddAuthor([FromBody] DTOAuthor author)
         {
-            string authors = _authordatabasemanager.AddAuthor(author);
-            return Ok(authors);
+            var result = _authordatabasemanager.AddAuthor(author);
+            return result == false ? BadRequest() : Ok("Author added successfully");
         }
 
+        [Authorize]
         [HttpPut]
         [Route("/UpdateBook/{id}")]
         public ActionResult UpdateBook([FromBody] UpdateBookModel book)
@@ -54,6 +99,7 @@ namespace EBook_Management_Application.Controllers
             return Ok(_databasemanager.UpdateBook(book));
         }
 
+        [Authorize]
         [HttpPut]
         [Route("/UpdateAuthor/{id}")]
         public ActionResult UpdateAuthor([FromBody] UpdateAuthorModel author)
@@ -61,6 +107,7 @@ namespace EBook_Management_Application.Controllers
             return Ok(_authordatabasemanager.UpdateAuthor(author));
         }
 
+        [Authorize]
         [HttpDelete]
         [Route("/DeleteBook/{id}")]
         public ActionResult DeleteBook(Guid id)
@@ -74,6 +121,7 @@ namespace EBook_Management_Application.Controllers
             return NotFound("Book not found");
         }
 
+        [Authorize]
         [HttpDelete]
         [Route("/DeleteAuthor/{id}")]
         public ActionResult DeleteAuthor(Guid id)
@@ -87,6 +135,7 @@ namespace EBook_Management_Application.Controllers
             return NotFound("Author not found");
         }
 
+        [Authorize]
         [HttpGet]
         [Route("/GetBookByTitle")]
         public ActionResult GetBookByTitle(string title)
@@ -99,6 +148,7 @@ namespace EBook_Management_Application.Controllers
             return Ok(books);
         }
 
+        [Authorize]
         [HttpGet]
         [Route("/GetBooksByGenre")]
         public ActionResult GetBooksByGenre(int genre_id)
@@ -111,6 +161,7 @@ namespace EBook_Management_Application.Controllers
             return Ok(books);   
         }
 
+        [Authorize]
         [HttpGet("GetBooksByAuthorName")]
         public ActionResult GetBooksByAuthorName(string authorName)
         {
@@ -122,6 +173,7 @@ namespace EBook_Management_Application.Controllers
             return Ok(books);
         }
 
+        [Authorize]
         [HttpGet("GroupBooksOnGenreName")]
         public ActionResult GroupBooksOnGenreName()
         {
@@ -133,6 +185,7 @@ namespace EBook_Management_Application.Controllers
             return Ok(booksOnGenre);
         }
 
+        [Authorize]
         [HttpGet("/GetAuthorsOfABook")]
         public ActionResult GetAuthorsOfABook(string title) 
         {
