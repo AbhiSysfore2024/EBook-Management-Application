@@ -28,8 +28,8 @@ builder.Services.AddAuthentication(options => {
         ValidateIssuer = true,
         ValidateAudience = true,
         ClockSkew = TimeSpan.Zero,
-        ValidIssuer = "abhilash",
-        ValidAudience = "abhilash"
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"]
     };
 });
 
