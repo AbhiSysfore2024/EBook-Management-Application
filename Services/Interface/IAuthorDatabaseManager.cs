@@ -10,7 +10,7 @@ namespace Services.Interface
     public interface IAuthorDatabaseManager
     {
         List<AuthorModel> GetAllAuthors();
-        string AddAuthor(DTOAuthor author);
+        bool AddAuthor(DTOAuthor author);
         string UpdateAuthor(UpdateAuthorModel author);
         bool DeleteAuthor(Guid id);
     }

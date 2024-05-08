@@ -64,12 +64,17 @@ namespace Services
             return author;
         }
 
-        public string AddAuthor(DTOAuthor authors)
+        public bool AddAuthor(DTOAuthor authors)
         {
             using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
 
             try
             {
+                if (string.IsNullOrWhiteSpace(authors.Name.FirstName) || string.IsNullOrWhiteSpace(authors.Name.LastName) ||
+                    string.IsNullOrWhiteSpace(authors.Biography) || string.IsNullOrWhiteSpace(authors.Country))
+                {
+                    throw new ArgumentException("Cannot be empty or whitespace");
+                }
                 connection.Open();
                 AuthorModel author = new AuthorModel(authors);
 
@@ -87,13 +92,13 @@ namespace Services
 
 
                 command.ExecuteNonQuery();
-                return "Author added successfully";
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                return "Cannot add author";
+                return false;
             }
+            return true;
         }
 
         public string UpdateAuthor(UpdateAuthorModel author)
