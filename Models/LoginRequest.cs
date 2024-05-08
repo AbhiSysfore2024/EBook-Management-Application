@@ -10,6 +10,15 @@ namespace Models
     {
          public string UserName { get; set; }
          public string PassWord { get; set; }
+         public string Role { get; set; }
 
+        public LoginRequest() { 
+        }
+
+        public LoginRequest(DTOLoginRequest loginRequest)
+        {
+            this.UserName = loginRequest.UserName;
+            this.PassWord = loginRequest.PassWord;
+        }
     }
 }
