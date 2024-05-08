@@ -8,6 +8,7 @@ namespace EBook_Management_Application.Extensions
     {
         public static void SingletonService(this IServiceCollection services)
         {
+            services.AddSingleton<ILoginRequest, LoginRequestStoredProcedure>();
             services.AddSingleton<IDatabaseManager, BooksStoredProcedure>();
             services.AddSingleton<IAuthorDatabaseManager, AuthorStoredProcedure>();
         }
