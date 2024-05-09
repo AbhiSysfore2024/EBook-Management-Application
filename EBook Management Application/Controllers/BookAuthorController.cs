@@ -6,8 +6,6 @@ using Services;
 using Services.Interface;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Identity.Data;
 
 namespace EBook_Management_Application.Controllers
 {
@@ -24,9 +22,31 @@ namespace EBook_Management_Application.Controllers
             _databasemanager = databaseManager;
         }
 
+        [HttpPost]
+        [Route("/Signup")]
+        public ActionResult Signup(LoginRequest loginRequest)
+        {
+            try
+            {
+                var signup = _loginRequest.Signup(loginRequest);
+                if(signup == "Username or password cannot be empty or whitespace")
+                {
+                    return BadRequest(signup);
+                }
+                else if (signup == "Role must be either 'Admin' or 'User'")
+                {
+                    return BadRequest(signup);
+                }
+                return Ok("Success");
+            }
+            catch
+            {
+                return BadRequest("An error occurred while trying to signup");
+            }
+        }
 
         [HttpPost]
-        [Route("Authentication")]
+        [Route("/Authentication")]
         public IActionResult GenerateJwtToken(DTOLoginRequest loginDTO)
         {
             try
@@ -48,7 +68,7 @@ namespace EBook_Management_Application.Controllers
 
         [Authorize(Roles = "Admin, User")]
         [HttpGet]
-        [Route("GetAllBooks")]
+        [Route("/GetAllBooks")]
         public ActionResult GetAllBoooks(){
             return Ok(_databasemanager.GetAllBooks());
         }

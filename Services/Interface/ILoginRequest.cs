@@ -9,6 +9,7 @@ namespace Services.Interface
 {
     public interface ILoginRequest
     {
+        string Signup(LoginRequest loginRequest);
         string RoleAssigned(DTOLoginRequest loginRequest);
         string GenerateJwtToken(DTOLoginRequest loginDTO, string role);
     }

@@ -20,6 +20,45 @@ namespace Services
             _connection = connection.Value;
         }
 
+        public string Signup(LoginRequest loginRequest)
+        {
+            using (SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio))
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(loginRequest.UserName) || string.IsNullOrWhiteSpace(loginRequest.PassWord))
+                    {
+                        throw new ArgumentException("Username or password cannot be empty or whitespace");
+                    }
+
+                    if (loginRequest.Role != "Admin" && loginRequest.Role != "User")
+                    {
+                        throw new ArgumentException("Role must be either 'Admin' or 'User'");
+                    }
+
+                    string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(loginRequest.PassWord, 13);
+                    connection.Open();
+
+                    string signupQuery = "SignupHash";
+                    SqlCommand command = new SqlCommand(signupQuery, connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add("@UserName", SqlDbType.VarChar).Value = loginRequest.UserName;
+                    command.Parameters.Add("@Password", SqlDbType.VarChar).Value = passwordHash;
+                    command.Parameters.Add("@RoleAssigned", SqlDbType.VarChar).Value = loginRequest.Role;
+
+                    command.ExecuteNonQuery();
+
+                    return "User successfully registered";
+                }
+                catch (Exception ex)
+                {
+            
+                    Console.WriteLine("Error: " + ex.Message);
+                    return ex.Message;
+                }
+            }
+        }
+
         public string RoleAssigned(DTOLoginRequest loginRequest)
         {
             string role = "";
