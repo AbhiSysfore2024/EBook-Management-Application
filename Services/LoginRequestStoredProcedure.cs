@@ -1,14 +1,13 @@
 ﻿using AppSettings;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Models;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Services
 {
@@ -50,5 +49,39 @@ namespace Services
             return role;
         }
 
+        public string GenerateJwtToken(DTOLoginRequest loginDTO, string role)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(role))
+                {
+                    throw new ArgumentException("Invalid username or password");
+                }
+                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyForAuthenticationOfApplication"));
+                var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+                var claim = new List<Claim>
+            {
+            new Claim(ClaimTypes.Name, loginDTO.UserName),
+            new Claim(ClaimTypes.Role, role)
+            };
+
+                var jwtSecurityToken = new JwtSecurityToken(
+                    issuer: "abhilash",
+                    audience: "abhilash",
+                    claims: claim,
+                    expires: DateTime.Now.AddMinutes(10),
+                    signingCredentials: signinCredentials
+                );
+
+                return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            }
+            catch ( Exception e )
+            {
+                Console.WriteLine(e.Message);
+                return e.Message;
+            }
+        }
     }
 }
+
