@@ -230,3 +230,21 @@ WHERE ADOBook.Title = @Title; END
 	INSERT INTO BookAuthor (BookID, AuthorID)
     SELECT @BookID, AuthorID FROM @AuthorIDs;
 	END
+
+	CREATE TABLE ADOAccess(
+	   Username VARCHAR(100),
+	   Password VARCHAR(100),
+	   RoleAssigned VARCHAR(100)
+	 )
+
+	 INSERT INTO ADOAccess (Username, Password, RoleAssigned)
+	 VALUES ('abhi', 'abhilash', 'Admin'),
+	        ('vishnu', 'vishnu', 'User')
+
+	 CREATE PROCEDURE GetRole (
+	   @Username VARCHAR(100),
+	   @Password VARCHAR (100) ) AS BEGIN SELECT ADOAccess.RoleAssigned FROM ADOAccess WHERE Username = @Username AND Password = @Password; END
+
+	   EXEC GetRole 'abhi', 'abhilash'
+
+	   select * from ADOAccess
