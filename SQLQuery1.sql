@@ -241,10 +241,20 @@ WHERE ADOBook.Title = @Title; END
 	 VALUES ('abhi', 'abhilash', 'Admin'),
 	        ('vishnu', 'vishnu', 'User')
 
-	 CREATE PROCEDURE GetRole (
-	   @Username VARCHAR(100),
-	   @Password VARCHAR (100) ) AS BEGIN SELECT ADOAccess.RoleAssigned FROM ADOAccess WHERE Username = @Username AND Password = @Password; END
 
-	   EXEC GetRole 'abhi', 'abhilash'
+		 CREATE PROCEDURE SignupHash (
+		 @UserName VARCHAR(100),
+		 @Password VARCHAR(300), 
+		 @RoleAssigned VARCHAR(10)
+		 ) AS BEGIN INSERT INTO ADOCredentials (UserName, Password, RoleAssigned)
+		 VALUES (@UserName, @Password, @RoleAssigned) END;
 
-	   select * from ADOAccess
+
+		 CREATE PROCEDURE GetRole (
+	   @UserName VARCHAR(100),
+	   @Password VARCHAR (300) ) AS BEGIN SELECT ADOCredentials.RoleAssigned FROM ADOCredentials WHERE UserName = @UserName AND Password = @Password; END
+
+
+		 CREATE PROCEDURE LoginHash (
+		 @UserName VARCHAR(100)) AS BEGIN SELECT ADOCredentials.Password FROM ADOCredentials WHERE UserName = @UserName; END
+	
