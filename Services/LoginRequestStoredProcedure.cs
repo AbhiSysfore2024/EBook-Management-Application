@@ -7,6 +7,7 @@ using Services.Interface;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Services
@@ -59,31 +60,46 @@ namespace Services
             }
         }
 
+
         public string RoleAssigned(DTOLoginRequest loginRequest)
         {
             string role = "";
-            using (SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio))
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
+            try
             {
-                try
-                {
-                    connection.Open();
-                    string returnRoleQuery = "GetRole";
-                    SqlCommand command = new SqlCommand(returnRoleQuery, connection);
-                    command.CommandType = CommandType.StoredProcedure;
+            connection.Open();
+            string hashedPassword = "";
+            string loginQuery = "LoginHash";
 
-                    command.Parameters.Add("@Username", SqlDbType.VarChar).Value = loginRequest.UserName;
-                    command.Parameters.Add("@Password", SqlDbType.VarChar).Value = loginRequest.PassWord;
+            SqlCommand command = new SqlCommand(loginQuery, connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Add("@UserName", SqlDbType.VarChar).Value = loginRequest.UserName;
 
-                    var result = command.ExecuteScalar();
-                    if (result != null)
-                    {
-                        role = Convert.ToString(result);
-                    }
-                }
-                catch (Exception e)
+            hashedPassword = command.ExecuteScalar() as string;
+
+                if (hashedPassword != null && BCrypt.Net.BCrypt.EnhancedVerify(loginRequest.PassWord, hashedPassword))
                 {
-                    Console.WriteLine(e.Message);
+                    string roleQuery = "GetRole";
+                     SqlCommand roleCommand = new SqlCommand(roleQuery, connection);
+                    roleCommand.CommandType = CommandType.StoredProcedure;
+
+                    roleCommand.Parameters.Add("@UserName", SqlDbType.VarChar).Value = loginRequest.UserName;
+                    roleCommand.Parameters.Add("@Password", SqlDbType.VarChar).Value = hashedPassword;
+
+                     var result = roleCommand.ExecuteScalar();
+                     if (result != null)
+                     {
+                          role = Convert.ToString(result);
+                     }
                 }
+                else
+                {
+                    Console.WriteLine("Invalid username or password");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
             return role;
         }
@@ -100,10 +116,10 @@ namespace Services
                 var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
                 var claim = new List<Claim>
-            {
-            new Claim(ClaimTypes.Name, loginDTO.UserName),
-            new Claim(ClaimTypes.Role, role)
-            };
+                {
+                new Claim(ClaimTypes.Name, loginDTO.UserName),
+                new Claim(ClaimTypes.Role, role)
+                };
 
                 var jwtSecurityToken = new JwtSecurityToken(
                     issuer: "abhilash",
