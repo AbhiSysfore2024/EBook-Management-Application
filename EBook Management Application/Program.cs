@@ -8,8 +8,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
-//var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -22,8 +20,7 @@ builder.Services.AddAuthentication(options => {
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8
-            .GetBytes("YourSecretKeyForAuthenticationOfApplication")
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
         ),
         ValidateIssuer = true,
         ValidateAudience = true,
@@ -33,7 +30,7 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
-
+builder.Services.Configure<JWTClaimDetails>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
 builder.Services.SingletonService();
 

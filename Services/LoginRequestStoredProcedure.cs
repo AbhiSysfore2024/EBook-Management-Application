@@ -15,10 +15,12 @@ namespace Services
     public class LoginRequestStoredProcedure : ILoginRequest
     {
         private readonly ConnectionStrings _connection;
+        private readonly JWTClaimDetails _jwtDetails;
 
-        public LoginRequestStoredProcedure(IOptions<ConnectionStrings> connection)
+        public LoginRequestStoredProcedure(IOptions<ConnectionStrings> connection, IOptions<JWTClaimDetails> jwtDetails)
         {
             _connection = connection.Value;
+            _jwtDetails = jwtDetails.Value;
         }
 
         public string Signup(LoginRequest loginRequest)
@@ -112,7 +114,7 @@ namespace Services
                 {
                     throw new ArgumentException("Invalid username or password");
                 }
-                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKeyForAuthenticationOfApplication"));
+                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtDetails.Key));
                 var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
                 var claim = new List<Claim>
@@ -122,8 +124,8 @@ namespace Services
                 };
 
                 var jwtSecurityToken = new JwtSecurityToken(
-                    issuer: "abhilash",
-                    audience: "abhilash",
+                    issuer: _jwtDetails.Issuer,
+                    audience: _jwtDetails.Audience,
                     claims: claim,
                     expires: DateTime.Now.AddMinutes(10),
                     signingCredentials: signinCredentials
@@ -139,4 +141,3 @@ namespace Services
         }
     }
 }
-
