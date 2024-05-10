@@ -75,7 +75,6 @@ namespace EBook_Management_Application.Controllers
 
 
         [Authorize(Roles = "Admin")]
-        [Authorize]
         [HttpPost]
         [Route("/AddBook")]
         public ActionResult AddBook([FromBody] DTOBooks book) {
