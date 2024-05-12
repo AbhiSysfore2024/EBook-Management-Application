@@ -24,7 +24,7 @@ namespace EBook_Management_Application.Controllers
 
         [HttpPost]
         [Route("/Signup")]
-        public ActionResult Signup(LoginRequest loginRequest)
+        public ActionResult Signup(DTOLoginRequest loginRequest)
         {
             try
             {
