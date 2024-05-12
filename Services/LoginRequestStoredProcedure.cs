@@ -33,6 +33,11 @@ namespace Services
                         throw new ArgumentException("Username or password cannot be empty or whitespace");
                     }
 
+                    if (string.Equals(loginRequest.UserName, loginRequest.PassWord))
+                    {
+                        throw new ArgumentException("Username & password cannot be equal");
+                    }
+
                     string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(loginRequest.PassWord, 13);
                     connection.Open();
 
