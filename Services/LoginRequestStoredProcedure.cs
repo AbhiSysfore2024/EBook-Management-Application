@@ -7,7 +7,6 @@ using Services.Interface;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Services
@@ -23,7 +22,7 @@ namespace Services
             _jwtDetails = jwtDetails.Value;
         }
 
-        public string Signup(LoginRequest loginRequest)
+        public string Signup(DTOLoginRequest loginRequest)
         {
             using (SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio))
             {
@@ -34,11 +33,6 @@ namespace Services
                         throw new ArgumentException("Username or password cannot be empty or whitespace");
                     }
 
-                    if (loginRequest.Role != "Admin" && loginRequest.Role != "User")
-                    {
-                        throw new ArgumentException("Role must be either 'Admin' or 'User'");
-                    }
-
                     string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(loginRequest.PassWord, 13);
                     connection.Open();
 
@@ -47,7 +41,7 @@ namespace Services
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add("@UserName", SqlDbType.VarChar).Value = loginRequest.UserName;
                     command.Parameters.Add("@Password", SqlDbType.VarChar).Value = passwordHash;
-                    command.Parameters.Add("@RoleAssigned", SqlDbType.VarChar).Value = loginRequest.Role;
+                    command.Parameters.Add("@RoleAssigned", SqlDbType.VarChar).Value = Role.User;
 
                     command.ExecuteNonQuery();
 
@@ -55,7 +49,6 @@ namespace Services
                 }
                 catch (Exception ex)
                 {
-            
                     Console.WriteLine("Error: " + ex.Message);
                     return ex.Message;
                 }
@@ -105,6 +98,7 @@ namespace Services
             }
             return role;
         }
+
 
         public string GenerateJwtToken(DTOLoginRequest loginDTO, string role)
         {
