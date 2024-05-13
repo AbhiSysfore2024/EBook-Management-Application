@@ -6,6 +6,7 @@ using Models;
 using Services.Interface;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Text;
 
@@ -77,7 +78,7 @@ namespace Services
 
             hashedPassword = command.ExecuteScalar() as string;
 
-                if (hashedPassword != null && BCrypt.Net.BCrypt.EnhancedVerify(loginRequest.PassWord, hashedPassword))
+                if (hashedPassword != null && BCrypt.Net.BCrypt.Verify(loginRequest.PassWord, hashedPassword))
                 {
                     string roleQuery = "GetRole";
                      SqlCommand roleCommand = new SqlCommand(roleQuery, connection);
@@ -138,5 +139,39 @@ namespace Services
                 return e.Message;
             }
         }
+
+        public List<object> GetAllUsers()
+        {
+            List<object> getAllUsers = new List<object> ();
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
+            try
+            {
+                connection.Open();
+                string getAllUsersQuery = "GetAllUsers";
+                SqlCommand command = new SqlCommand(getAllUsersQuery, connection);
+                command.CommandType = CommandType.StoredProcedure;
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    string username = reader.GetString(0);
+                    string roleAssigned = reader.GetString(2);
+
+                    var users = new 
+                    {
+                        UserName = username,
+                        Role = (Role)Enum.Parse(typeof(Role), roleAssigned)
+                    };
+
+                    getAllUsers.Add(users);
+                }
+            }
+            catch ( Exception e )
+            {
+                Console.WriteLine(e.Message);
+            }
+            return getAllUsers;
+        }
+
     }
 }

@@ -29,15 +29,15 @@ namespace EBook_Management_Application.Controllers
             try
             {
                 var signup = _loginRequest.Signup(loginRequest);
-                if(signup == "Username or password cannot be empty or whitespace")
+                if (signup == "User successfully registered")
+                {
+                    return Ok("Success");
+                }
+                
+                else
                 {
                     return BadRequest(signup);
                 }
-                else if (signup == "Role must be either 'Admin' or 'User'")
-                {
-                    return BadRequest(signup);
-                }
-                return Ok("Success");
             }
             catch
             {
@@ -65,6 +65,14 @@ namespace EBook_Management_Application.Controllers
             }
         }
 
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        [Route("GetAllUsers")]
+        public ActionResult GetAllUsers()
+        {
+            return Ok(_loginRequest.GetAllUsers());
+        }
 
         [Authorize(Roles = "Admin, User")]
         [HttpGet]

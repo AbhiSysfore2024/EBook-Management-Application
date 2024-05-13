@@ -12,5 +12,6 @@ namespace Services.Interface
         string Signup(DTOLoginRequest loginRequest);
         string RoleAssigned(DTOLoginRequest loginRequest);
         string GenerateJwtToken(DTOLoginRequest loginDTO, string role);
+        List<object> GetAllUsers();
     }
 }
