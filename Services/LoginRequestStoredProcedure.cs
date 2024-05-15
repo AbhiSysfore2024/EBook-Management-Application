@@ -42,6 +42,18 @@ namespace Services
                     string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(loginRequest.PassWord, 13);
                     connection.Open();
 
+                    string checkUserNameQuery = "UniqueUserName";
+                    SqlCommand checkcommand = new SqlCommand(checkUserNameQuery, connection);
+                    checkcommand.CommandType = CommandType.StoredProcedure;
+                    checkcommand.Parameters.Add("@UserName", SqlDbType.VarChar).Value = loginRequest.UserName;
+                    int uniqueUser = (int)checkcommand.ExecuteScalar();
+
+                    if (uniqueUser > 0)
+                    {
+                        throw new NotUniqueUserName("This username is already taken. Try another");
+                    }
+                    string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(loginRequest.PassWord, 13);
+
                     string signupQuery = "SignupHash";
                     SqlCommand command = new SqlCommand(signupQuery, connection);
                     command.CommandType = CommandType.StoredProcedure;
@@ -58,15 +70,17 @@ namespace Services
                     return ce.Message;
                 }
 
-                catch (EqualUserNameAndPassword eup)
+                catch (Exception ex) when (ex is EmptOrNullSpaceUsrnmePsswrd ||
+                                           ex is EqualUserNameAndPassword ||
+                                           ex is NotUniqueUserName)
                 {
-                    return eup.Message;
+                    return ex.Message;
                 }
 
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    Console.WriteLine("Error: " + ex.Message);
-                    return ex.Message;
+                    Console.WriteLine("Error: " + e.Message);
+                    return e.Message;
                 }
             }
         }
