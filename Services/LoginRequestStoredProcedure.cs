@@ -1,4 +1,5 @@
 ﻿using AppSettings;
+using Exceptions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -6,7 +7,6 @@ using Models;
 using Services.Interface;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Text;
 
@@ -31,12 +31,12 @@ namespace Services
                 {
                     if (string.IsNullOrWhiteSpace(loginRequest.UserName) || string.IsNullOrWhiteSpace(loginRequest.PassWord))
                     {
-                        throw new ArgumentException("Username or password cannot be empty or whitespace");
+                        throw new EmptOrNullSpaceUsrnmePsswrd("Username or password cannot be empty or whitespace");
                     }
 
                     if (string.Equals(loginRequest.UserName, loginRequest.PassWord))
                     {
-                        throw new ArgumentException("Username & password cannot be equal");
+                        throw new EqualUserNameAndPassword("Username & password cannot be equal");
                     }
 
                     string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(loginRequest.PassWord, 13);
@@ -53,6 +53,16 @@ namespace Services
 
                     return "User successfully registered";
                 }
+                catch (EmptOrNullSpaceUsrnmePsswrd ce)
+                {
+                    return ce.Message;
+                }
+
+                catch (EqualUserNameAndPassword eup)
+                {
+                    return eup.Message;
+                }
+
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error: " + ex.Message);
@@ -112,7 +122,7 @@ namespace Services
             {
                 if (string.IsNullOrEmpty(role))
                 {
-                    throw new ArgumentException("Invalid username or password");
+                    throw new InvalidUserNamePassword("Invalid username or password");
                 }
                 var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtDetails.Key));
                 var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
@@ -133,6 +143,12 @@ namespace Services
 
                 return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             }
+
+            catch (InvalidUserNamePassword iup)
+            {
+                return iup.Message;
+            }
+
             catch ( Exception e )
             {
                 Console.WriteLine(e.Message);
