@@ -39,7 +39,6 @@ namespace Services
                         throw new EqualUserNameAndPassword("Username & password cannot be equal");
                     }
 
-                    string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(loginRequest.PassWord, 13);
                     connection.Open();
 
                     string checkUserNameQuery = "UniqueUserName";
@@ -64,10 +63,6 @@ namespace Services
                     command.ExecuteNonQuery();
 
                     return "User successfully registered";
-                }
-                catch (EmptOrNullSpaceUsrnmePsswrd ce)
-                {
-                    return ce.Message;
                 }
 
                 catch (Exception ex) when (ex is EmptOrNullSpaceUsrnmePsswrd ||
@@ -203,5 +198,53 @@ namespace Services
             return getAllUsers;
         }
 
+        public string ResetPassword(string username, string newPassword)
+        {
+            using SqlConnection connection = new SqlConnection(_connection.SQLServerManagementStudio);
+            try
+            {
+                connection.Open();
+                string hashedPassword = "";
+                string checkQuery = "LoginHash";
+
+
+                SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
+                checkCommand.CommandType = CommandType.StoredProcedure;
+                checkCommand.Parameters.Add("@UserName", SqlDbType.VarChar).Value = username;
+
+                hashedPassword = checkCommand.ExecuteScalar() as string;
+
+                if(BCrypt.Net.BCrypt.EnhancedVerify(newPassword, hashedPassword))
+                {
+                    throw new NewPasswordSameAsOld("Sorry, your new password cannot be the same as your old password");
+                }
+
+                else
+                {
+                    string password = BCrypt.Net.BCrypt.EnhancedHashPassword(newPassword, 13);
+                    string forgotPasswordQuery = "ResetPassword";
+                    SqlCommand command = new SqlCommand(forgotPasswordQuery, connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add("@UserName", SqlDbType.VarChar).Value = username;
+                    command.Parameters.Add("@Password", SqlDbType.VarChar).Value = password;
+
+                    command.ExecuteNonQuery();
+
+                    return "Password successfully updated";
+
+                }
+            }
+
+            catch (NewPasswordSameAsOld npo)
+            {
+                return npo.Message;
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return ex.Message;
+            }
+        }
     }
 }

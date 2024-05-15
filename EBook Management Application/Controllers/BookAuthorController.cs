@@ -6,6 +6,7 @@ using Services;
 using Services.Interface;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace EBook_Management_Application.Controllers
 {
@@ -24,7 +25,7 @@ namespace EBook_Management_Application.Controllers
 
         [HttpPost]
         [Route("/Signup")]
-        public ActionResult Signup(DTOLoginRequest loginRequest)
+        public ActionResult Signup([FromBody] DTOLoginRequest loginRequest)
         {
             try
             {
@@ -47,7 +48,7 @@ namespace EBook_Management_Application.Controllers
 
         [HttpPost]
         [Route("/Authentication")]
-        public IActionResult GenerateJwtToken(DTOLoginRequest loginDTO)
+        public IActionResult GenerateJwtToken([FromBody]  DTOLoginRequest loginDTO)
         {
             try
             {
@@ -65,6 +66,19 @@ namespace EBook_Management_Application.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,User")]
+        [HttpPatch]
+        [Route("ResetPassword")]
+        public ActionResult ResetPassword([FromBody] string password)
+        {
+            string username = User.Identity.Name;
+            var result = _loginRequest.ResetPassword(username, password);
+            if (result == "Password successfully updated")
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
@@ -77,7 +91,7 @@ namespace EBook_Management_Application.Controllers
         [Authorize(Roles = "Admin, User")]
         [HttpGet]
         [Route("/GetAllBooks")]
-        public ActionResult GetAllBoooks(){
+        public ActionResult GetAllBooks(){
             return Ok(_databasemanager.GetAllBooks());
         }
 
