@@ -241,6 +241,9 @@ WHERE ADOBook.Title = @Title; END
 	 VALUES ('abhi', 'abhilash', 'Admin'),
 	        ('vishnu', 'vishnu', 'User')
 
+	SELECT * FROM ADOAccess
+
+	CREATE PROCEDURE Forgot ( @Username VARCHAR(100), @Password VARCHAR(100) ) AS BEGIN UPDATE ADOAccess SET Password = @Password WHERE Username = @Username; END
 
 		 CREATE PROCEDURE SignupHash (
 		 @UserName VARCHAR(100),
@@ -254,7 +257,18 @@ WHERE ADOBook.Title = @Title; END
 	   @UserName VARCHAR(100),
 	   @Password VARCHAR (300) ) AS BEGIN SELECT ADOCredentials.RoleAssigned FROM ADOCredentials WHERE UserName = @UserName AND Password = @Password; END
 
+	   EXEC LoginHash 'abhi'
 
 		 CREATE PROCEDURE LoginHash (
 		 @UserName VARCHAR(100)) AS BEGIN SELECT ADOCredentials.Password FROM ADOCredentials WHERE UserName = @UserName; END
-	
+
+	CREATE PROCEDURE GetAllUsers AS BEGIN SELECT * FROM ADOCredentials WHERE ADOCredentials.RoleAssigned = 'User'; END
+
+	select * FROM ADOAccess
+
+	CREATE PROCEDURE UniqueUserName (@UserName VARCHAR(100)) AS BEGIN
+	SELECT COUNT(*) AS CheckUserName FROM ADOCredentials WHERE UserName = @UserName; END
+
+	CREATE PROCEDURE ResetPassword (@UserName VARCHAR(100), @Password VARCHAR(300)) AS BEGIN UPDATE ADOCredentials SET Password = @Password WHERE UserName = @UserName; END
+
+	SELECT * FROM ADOCredentials
