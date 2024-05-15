@@ -78,7 +78,7 @@ namespace Services
 
             hashedPassword = command.ExecuteScalar() as string;
 
-                if (hashedPassword != null && BCrypt.Net.BCrypt.Verify(loginRequest.PassWord, hashedPassword))
+                if (hashedPassword != null && BCrypt.Net.BCrypt.EnhancedVerify(loginRequest.PassWord, hashedPassword))
                 {
                     string roleQuery = "GetRole";
                      SqlCommand roleCommand = new SqlCommand(roleQuery, connection);
